@@ -1,4 +1,4 @@
-const {Post, User} = require('../db/postDB')
+const {Post} = require('../db/postDB')
 const {createPostBody} = require('../zod/postZod')
 
 async function createPost(req, res) {
@@ -18,17 +18,17 @@ async function createPost(req, res) {
                 msg: "Author not found"
             })
         }
-        //Have to work on this [TODO]
-        const post = newPost({
+
+        const newPost = await Post.create({
             title,
             content,
-            author: author._id,
+            author: userId,
             tags
         })
 
         return res.status(201).json({
             msg: "Post Created",
-            post
+            newPost
         })
     }
     catch(error) {

@@ -22,12 +22,6 @@ const userSchema = new mongoose.Schema({
         required: true,
         minLength: 6
     },
-    posts : [
-        {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post'
-        }
-    ],
     followers: [
         {
             type: mongoose.Schema.Types.ObjectId,
