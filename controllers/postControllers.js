@@ -1,15 +1,16 @@
 const {Post} = require('../db/postDB')
+const {User} = require('../db/userDB')
 const {postBody} = require('../zod/postZod')
 
 async function createPost(req, res) {
     try{
-        const {title, content, tags} = postBody.safeParse(req.body)
-        const userId = req.userId
+        const { title, content, tags } = req.body
         if(!title || !content || !tags) {
             return res.status(400).json({
-                msg: "Invalid User Input"
+                msg: "Missing Title/Content/Tags"
             })
         }
+        const userId = req.userId
         const author = await User.findOne({
            _id:  userId
         })
@@ -18,11 +19,12 @@ async function createPost(req, res) {
                 msg: "Author not found"
             })
         }
+    
         const newPost = await Post.create({
-            title,
-            content,
             author: userId,
-            tags
+            content,
+            tags,
+            title
         })
         return res.status(201).json({
             msg: "Post Created",
