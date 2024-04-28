@@ -29,9 +29,10 @@ const postSchema = new mongoose.Schema({
         required: true
     },
     votes: voteSchema,
-    tags: [{
-        type: String
-    }],
+    tags: {
+        type: [String],
+        required: true
+    },
     comments: [
         {
             author: {
