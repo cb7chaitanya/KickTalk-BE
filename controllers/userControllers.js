@@ -2,7 +2,6 @@ const { User } = require('../db/userDB')
 const { JWT_SECRET } = require('../config')
 const jwt = require('jsonwebtoken')
 const {signinBody, signupBody } = require('../zod/userZod')
-const express = require('express')
 
 async function Signup(req, res) {
     const {success} = signupBody.safeParse(req.body)
@@ -88,8 +87,13 @@ async function getUser(req, res) {
     }
 }
 
+async function createProfile(req, res) {
+    
+}
+
 module.exports = {
     Signup,
     Signin,
-    getUser 
+    getUser,
+    createProfile
 }
