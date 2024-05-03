@@ -43,7 +43,7 @@ async function createCommunity(req, res) {
 async function getCommunityById(req, res) {
     const communityId = req.params.communityId
     try{
-        const community = await Community.find({ id: communityId})
+        const community = await Community.findById(communityId)
         console.log(community)
         if(!community) {
             return res.status(404).json({
@@ -51,10 +51,9 @@ async function getCommunityById(req, res) {
             })
         }
         return res.status(200).json({
-            community
+            community: community
         })
     } catch(error){
-        console.log(error)
         return res.status(500).json({
             msg: "Internal Server Error"
         })
@@ -108,7 +107,7 @@ async function deleteCommunity(req, res){
                 msg: "Community not found"
             })
         }
-        const admin = community.admin.toString()
+        const admin = community.admin
         if(admin != possibleAdmin) {
             return res.status(401).json({
                 msg: "Unauthorized"
@@ -126,53 +125,9 @@ async function deleteCommunity(req, res){
     }
 }
 
-async function getCommunityByName(req, res){
-    try{
-        const name = req.query.name
-        console.log(name)
-        if(!name){
-            return res.status(400).json({
-                msg: "Missing Name"
-            })
-        }
-        const community = await Community.findOne({ 
-            name: name
-        })
-        if(!community) {
-            return res.status(404).json({
-                msg: "Community not found"
-            })
-        }
-        console.log(community)
-        return res.status(200).json({
-            community: community
-        })
-    } catch(error){
-        return res.status(500).json({
-            msg: "Internal Server Error"
-        })
-    }
-}
-
-async function getAllCommunities(req, res) {
-    try{
-        const communities = await Community.find()
-        console.log(communities)
-        return res.status(200).json({
-            communities
-        })
-    } catch(error){
-        return res.status(500).json({   
-            msg: "Internal Server Error"   
-        })
-    }
-}
-
 module.exports = {
     createCommunity,
     getCommunityById,
     updateCommunity,
-    deleteCommunity, 
-    getCommunityByName,
-    getAllCommunities
+    deleteCommunity
 }
