@@ -1,7 +1,14 @@
 const { User } = require('../db/userDB')
-const { JWT_SECRET } = require('../config')
 const jwt = require('jsonwebtoken')
 const {signinBody, signupBody } = require('../zod/userZod')
+const cloudinary = require('cloudinary').v2
+require('dotenv').config()
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
 
 async function Signup(req, res) {
     const {success} = signupBody.safeParse(req.body)
@@ -88,12 +95,86 @@ async function getUser(req, res) {
 }
 
 async function createProfile(req, res) {
-    
+    const { bio } = req.body
+    let avatarImageUrl;
+    const userId = req.userId;
+    try{
+        const user = await User.findById(userId);
+        if(!user) {
+            return res.status(404).json({
+                msg: "User Not Found"
+            })
+        }
+        if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path)
+
+            avatarImageUrl = result.secure_url
+        }
+        const profile = user.profile = {
+            bio,
+            avatar: {
+                exists: avatarImageUrl ? true : false,
+                url: avatarImageUrl
+            }
+        }
+        await user.save()
+        return res.status(200).json({
+            msg: "Profile Created",
+            profile
+        })
+    } catch(error){
+        console.log(error)
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
+}
+
+async function follow(req, res) {
+    const { followedId } = req.body;
+
+    try{
+        const follower = req.userId;
+        const followed = await User.findById(followedId);
+        if(!follower || !followed) {
+            return res.status(404).json({ 
+                msg: "User Not Found"
+            })
+        }
+        if(follower.following.includes(followed._id)){
+            return res.status(400).json({
+                msg: "Already Following"
+            })
+        }
+
+        await User.findByIdAndUpdate(followed._id, {
+            $push: {
+                followers: follower._id
+            }
+        })
+
+        await User.findByIdAndUpdate(follower._id, {
+            $push: {
+                following: followed._id
+            }
+        })
+        return res.status({
+            msg: "Followed Successfully",
+            follower,
+            followed
+        })
+    } catch(error){
+        console.log(error)
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
 }
 
 module.exports = {
     Signup,
     Signin,
     getUser,
-    createProfile
+    createProfile,
+    follow
 }

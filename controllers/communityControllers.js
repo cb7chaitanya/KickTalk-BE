@@ -13,7 +13,6 @@ async function createCommunity(req, res) {
     const admin = req.userId
     let bannerImageUrl;
     try{
-
         if(req.file){
             const result = await cloudinary.uploader.upload(req.file.path)
 
@@ -107,7 +106,7 @@ async function deleteCommunity(req, res){
                 msg: "Community not found"
             })
         }
-        const admin = community.admin
+        const admin = community.admin.toString()
         if(admin != possibleAdmin) {
             return res.status(401).json({
                 msg: "Unauthorized"

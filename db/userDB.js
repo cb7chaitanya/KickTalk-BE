@@ -39,10 +39,6 @@ const userSchema = new mongoose.Schema({
             type: String,
             maxLength: 150
         },
-        socialLinks : {
-            Twitter: String,
-            Instagram:  String
-        },
         avatar: {
             exists: {
                 type: Boolean,
