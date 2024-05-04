@@ -130,38 +130,62 @@ async function createProfile(req, res) {
     }
 }
 
-async function follow(req, res) {
-    const { followedId } = req.body;
+async function followUser(req, res) {
+    const {followId} = req.params
+    const userId = req.userId
 
     try{
-        const follower = req.userId;
-        const followed = await User.findById(followedId);
-        if(!follower || !followed) {
-            return res.status(404).json({ 
+        const userToFollow = await User.findById(followId)
+        const user = await User.findById(userId)
+        if(!userToFollow) {
+            return res.status(404).json({
                 msg: "User Not Found"
             })
         }
-        if(follower.following.includes(followed._id)){
+        if(userToFollow.followers.includes(userId)){
             return res.status(400).json({
-                msg: "Already Following"
+                msg: "You are already following the user"
             })
         }
-
-        await User.findByIdAndUpdate(followed._id, {
-            $push: {
-                followers: follower._id
-            }
+        userToFollow.followers.push(userId)
+        user.following.push(followId)
+        await userToFollow.save()
+        await user.save()
+        return res.status(200).json({
+            msg: "User Followed",
+            user
         })
-
-        await User.findByIdAndUpdate(follower._id, {
-            $push: {
-                following: followed._id
-            }
+    } catch(error){
+        return res.status(500).json({
+            msg: "Internal Server Error"
         })
-        return res.status({
-            msg: "Followed Successfully",
-            follower,
-            followed
+    }
+}
+
+async function unfollowUser(req, res){
+    const {unfollowId} = req.params
+    const userId = req.userId
+
+    try{
+        const userToUnfollow = await User.findById(unfollowId)
+        const user = await User.findById(userId)
+        if(!userToUnfollow) {
+            return res.status(404).json({
+                msg: "User Not Found"
+            })
+        }
+        if(!user.following.includes(unfollowId)){
+            return res.status(400).json({
+                msg: "You are not following the user"
+            })
+        }
+        userToUnfollow.followers.pull(userId)
+        user.following.pull(unfollowId)
+        await userToUnfollow.save()
+        await user.save()
+        return res.status(200).json({
+            msg: "User Unfollowed",
+            user
         })
     } catch(error){
         console.log(error)
@@ -176,5 +200,6 @@ module.exports = {
     Signin,
     getUser,
     createProfile,
-    follow
+    followUser,
+    unfollowUser
 }
