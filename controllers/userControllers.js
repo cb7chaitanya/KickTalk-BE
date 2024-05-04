@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const {signinBody, signupBody } = require('../zod/userZod')
 const cloudinary = require('cloudinary').v2
 require('dotenv').config()
-
+const JWT_SECRET = process.env.JWT_SECRET
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
