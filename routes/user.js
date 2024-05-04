@@ -1,12 +1,13 @@
 const express = require('express')
 const userRouter = express.Router()
-const { Signup, Signin, getUser, createProfile, followUser, unfollowUser } = require('../controllers/userControllers')
+const { Signup, Signin, getUser, createProfile, followUser, unfollowUser, verify } = require('../controllers/userControllers')
 const {authMiddleware} = require('../middleware/auth')
 const multer = require('multer')
 
 const upload = multer({dest: 'uploads/'}).single('avatarImage')
 
 userRouter.post('/signup', Signup) //Signup
+userRouter.get('/verify', verify) //Matching verification Token on SignUp
 userRouter.post('/signin', Signin) //Login
 userRouter.get('/username', authMiddleware, getUser) //Get user by Username
 userRouter.post('/profile', authMiddleware, upload, createProfile) //Create Profile

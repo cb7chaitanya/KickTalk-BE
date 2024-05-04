@@ -4,11 +4,45 @@ const {signinBody, signupBody } = require('../zod/userZod')
 const cloudinary = require('cloudinary').v2
 require('dotenv').config()
 const JWT_SECRET = process.env.JWT_SECRET
+const nodemailer = require('nodemailer')
+const { v4: uuidv4 } = require('uuid')
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+})
+
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
+
+async function verify(req,res){
+    try{
+        const user = await User.findOne({
+            verificationToken: req.query.verificationToken
+        })
+        if(!user) {
+            return res.status(404).json({
+                msg: "User Not Found"
+            })
+        }
+        user.verified = true
+        user.verificationToken = null;
+        await user.save()
+        return res.status(200).json({
+            msg: "Email Verified"
+        })
+    } catch(error) {
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
+}
 
 async function Signup(req, res) {
     const {success} = signupBody.safeParse(req.body)
@@ -30,6 +64,21 @@ async function Signup(req, res) {
         email: req.body.email,
         password: req.body.password
     })
+    const verificationToken = uuidv4()
+    user.verificationToken = verificationToken
+    await user.save()
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: "Verify Your Email",
+        html: `
+        <h1>Verify Your Email</h1>
+        <p>Please click the link below to verify your email</p>
+        <a href="https://kicktalk-be.onrender.com/api/v1/user/verify/${verificationToken}">Verify Email</a>
+        `
+    }
+    await transporter.sendMail(mailOptions)
     const userId = user._id
     const token = jwt.sign({
         userId
@@ -201,5 +250,6 @@ module.exports = {
     getUser,
     createProfile,
     followUser,
-    unfollowUser
+    unfollowUser,
+    verify
 }

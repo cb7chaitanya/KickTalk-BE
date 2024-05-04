@@ -49,7 +49,14 @@ const userSchema = new mongoose.Schema({
                 default: 'null'
             }
         }
-    } 
+    },
+    verificationToken: {
+        type: String
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    }
 })
 
 const User = mongoose.model('User', userSchema)
