@@ -4,7 +4,7 @@ const {Community} = require('../db/communityDB')
 async function createPost(req, res) {
     try{
         const { title, content, tags, communityId } = req.body
-        if(!title || !content || !tags || !communityId) {
+        if(!title || !content || !tags || !communityId ) {
             return res.status(400).json({
                 msg: "Missing Title/Content/Tags/Community"
             })
@@ -39,6 +39,7 @@ async function createPost(req, res) {
             newPost
         })
     } catch(error) {
+        console.log(error)
         return res.status(500).json({
             msg: "Internal Server Error"
         })

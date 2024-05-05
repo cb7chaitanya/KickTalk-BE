@@ -1,4 +1,5 @@
 const { User } = require('../db/userDB')
+const { Community } = require('../db/communityDB')
 const jwt = require('jsonwebtoken')
 const {signinBody, signupBody } = require('../zod/userZod')
 const cloudinary = require('cloudinary').v2
@@ -244,6 +245,71 @@ async function unfollowUser(req, res){
     }
 }
 
+async function subscribedCommunities(req, res) {
+    const userId = req.userId;
+    try{    
+        const communities = await Community.find({subscribers: userId})
+        if(!communities){
+            return res.status(404).json({
+                msg: "Communities not found"
+            })
+        }       
+        return res.status(200).json({
+            communities
+        })
+    } catch(error){
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
+}
+
+async function subscribe(req,res){
+    const communityId = req.params.communityId
+    const userId = req.userId
+    const community = await Community.findById(communityId)
+    if(!community){
+        return res.status(404).json({
+            msg: "Community Not Found"
+        })
+    }
+    if(community.subscribers.includes(userId)){
+        return res.status(400).json({
+            msg: "You are already subscribed to the community"
+        })
+    }
+    community.subscribers.push(userId)
+    community.Count.subscribers = community.Count.subscribers + 1;
+    community.save()    
+    return res.status(200).json({
+        msg: "Community Subscribed",
+        community
+    })
+}
+
+async function unsubscribe(req, res){
+    const communityId = req.params.communityId
+    const userId = req.userId
+    const community = await Community.findById(communityId)
+    if(!community){
+        return res.status(404).json({
+            msg: "Community Not Found"
+        })
+    }
+    if(!community.subscribers.includes(userId)){
+        return res.status(400).json({
+            msg: "You are not subscribed to the community"
+        })
+    }
+    community.subscribers.pull(userId)
+    community.Count.subscribers = community.Count.subscribers - 1;
+    community.save()
+    return res.status(200).json({
+        msg: "Community Unsubscribed",
+        community
+    })
+}
+
 module.exports = {
     Signup,
     Signin,
@@ -251,5 +317,8 @@ module.exports = {
     createProfile,
     followUser,
     unfollowUser,
-    verify
+    verify,
+    subscribe, 
+    unsubscribe,
+    subscribedCommunities
 }

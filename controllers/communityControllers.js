@@ -1,4 +1,5 @@
 const { Community } = require('../db/communityDB')
+const { Post } = require('../db/postDB')
 const cloudinary = require('cloudinary').v2
 require('dotenv').config()
 
@@ -124,9 +125,31 @@ async function deleteCommunity(req, res){
     }
 }
 
+async function specificPosts(req, res) {
+    const userId = req.userId
+    const communityId = req.params.communityId
+    try{
+        const community = await Community.findById(communityId)
+        if(!community) {
+            return res.status(404).json({
+                msg: "Community not found"
+            })
+        }
+        const posts = await Post.find({community: communityId, author: userId})
+        return res.status(200).json({
+            posts
+        })
+    } catch(error){
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
+}
+
 module.exports = {
     createCommunity,
     getCommunityById,
     updateCommunity,
-    deleteCommunity
+    deleteCommunity,
+    specificPosts
 }
