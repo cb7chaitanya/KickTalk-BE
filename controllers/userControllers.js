@@ -144,6 +144,26 @@ async function getUser(req, res) {
     }
 }
 
+async function getUserById(req, res){
+    const userId = req.userId;
+
+    try{
+        const user = await User.findById(userId);
+        if(!user) {
+            return res.status(404).json({
+                msg: "User Not Found"
+            })
+        }
+        return res.status(200).json({
+            user
+        })
+    } catch(error){
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
+}
+
 async function createProfile(req, res) {
     const { bio } = req.body
     let avatarImageUrl;
@@ -314,6 +334,7 @@ module.exports = {
     Signup,
     Signin,
     getUser,
+    getUserById,
     createProfile,
     followUser,
     unfollowUser,
