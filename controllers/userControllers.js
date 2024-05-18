@@ -190,7 +190,7 @@ async function createProfile(req, res) {
         await user.save()
         return res.status(200).json({
             msg: "Profile Created",
-            profile
+            user
         })
     } catch(error){
         console.log(error)
