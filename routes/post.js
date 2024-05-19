@@ -1,7 +1,7 @@
 const express = require('express')
 const postRouter = express.Router()
 const { authMiddleware } = require('../middleware/auth')
-const { createPost, getAllPost, getYourPosts, getPostByTag, postVoteHandling, commentVoteHandling, createComment, getComments, deletePost, deleteComment, editPost, editComment } = require('../controllers/postControllers')
+const { createPost, getAllPost, getYourPosts, getPostByTag, getPostById, postVoteHandling, commentVoteHandling, createComment, getComments, deletePost, deleteComment, editPost, editComment } = require('../controllers/postControllers')
 
 postRouter.use(express.json())
 postRouter.use(authMiddleware)
@@ -10,6 +10,7 @@ postRouter.post('/create', createPost) //Create Post
 postRouter.get('/all', getAllPost) //Get All Posts
 postRouter.get('/own', getYourPosts) //Get your own posts
 postRouter.get('/tag', getPostByTag) //Get Posts By Tag
+postRouter.get('/:postId', getPostById) //Get Post By Id
 postRouter.post('/:postId/votes', postVoteHandling) // Handling upvote, downvote and unvote in a single post API for posts
 postRouter.post('/:postId/:commentId/votes', commentVoteHandling) //Handling upvote, downvote and unvote in a single post API for comments
 postRouter.delete('/:postId', deletePost) // Delete Post if you are the original author

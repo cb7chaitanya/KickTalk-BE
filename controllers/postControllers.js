@@ -3,14 +3,19 @@ const {User} = require('../db/userDB')
 const {Community} = require('../db/communityDB')
 async function createPost(req, res) {
     try{
-        const { title, content, tags, communityId } = req.body
-        if(!title || !content || !tags || !communityId ) {
+        const { title, content, tags, communityName } = req.body
+        console.log(req.body)
+        if(!title || !content || !tags || !communityName ) {
             return res.status(400).json({
                 msg: "Missing Title/Content/Tags/Community"
             })
         }
 
-        const community = await Community.findById(communityId)
+        const community = await Community.find({
+            name: communityName
+        })
+        const communityId = community._id
+
         if(!community){
             return res.status(404).json({
                 msg: "Community not found"
@@ -83,6 +88,20 @@ async function getPostByTag(req, res){
         })
         return res.status(200).json({
             posts
+        })
+    } catch(error){
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
+    }
+}
+
+async function getPostById(req, res){
+    const postId = req.params.postId
+    try{
+        const post = await Post.findById(postId)
+        return res.status(200).json({
+            post
         })
     } catch(error){
         return res.status(500).json({
@@ -396,6 +415,7 @@ module.exports = {
     getAllPost, 
     getYourPosts,
     getPostByTag,
+    getPostById,
     postVoteHandling,
     commentVoteHandling,
     createComment,
