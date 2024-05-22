@@ -234,10 +234,11 @@ async function createComment(req, res){
                 upvotes: 0
             }
         })
+        const comments = post.comments
         await post.save()
         return res.status(200).json({
             msg: "Comment created successfully",
-            post
+            comments
         })
     } catch(error){
         console.log(error)
