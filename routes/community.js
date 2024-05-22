@@ -2,11 +2,12 @@ const express = require('express')
 const communityRouter = express.Router()
 const multer = require('multer')
 const {authMiddleware} = require('../middleware/auth')
-const { createCommunity, getCommunityById, updateCommunity, deleteCommunity, specificPosts } = require('../controllers/communityControllers')
+const { createCommunity, getCommunityById, updateCommunity, deleteCommunity, specificPosts, getAllCommunities } = require('../controllers/communityControllers')
 
 const upload = multer({dest: 'uploads/'}).single('bannerImage')
 communityRouter.use(authMiddleware)
 
+communityRouter.get('/all', getAllCommunities) //Get all communities
 communityRouter.post('/create', upload, createCommunity) //Create Community
 communityRouter.get('/:communityId', getCommunityById) //Find Community by Id
 communityRouter.put('/:communityId', updateCommunity) //Update Community if admin

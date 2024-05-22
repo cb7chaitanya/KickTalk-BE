@@ -9,6 +9,17 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
+async function getAllCommunities (req, res) {
+    try{
+        const communities = await Community.find({})
+        return res.status(200).json({
+            communities
+        })
+    } catch(error) {
+        console.log(error)
+    }
+}
+
 async function createCommunity(req, res) {
     const { name, description } = req.body
     const admin = req.userId
@@ -151,5 +162,6 @@ module.exports = {
     getCommunityById,
     updateCommunity,
     deleteCommunity,
-    specificPosts
+    specificPosts,
+    getAllCommunities
 }
