@@ -55,7 +55,6 @@ async function getCommunityById(req, res) {
     const communityId = req.params.communityId
     try{
         const community = await Community.findById(communityId)
-        console.log(community)
         if(!community) {
             return res.status(404).json({
                 msg: "Community not found"
@@ -73,7 +72,6 @@ async function getCommunityById(req, res) {
 
 async function updateCommunity(req, res) {
     const communityId = req.params.communityId
-    console.log(communityId)
     const { name, description } = req.body
     const possibleAdmin = req.userId
     try{
